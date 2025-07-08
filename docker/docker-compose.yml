@@ -50,14 +50,14 @@ services:
 
   flux-mysql:
     container_name: flux-mysql
-    image: mysql:5.7.43
+    image: mysql:8.3.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - ../flux-backend/sql:/docker-entrypoint-initdb.d
-      - ./data/mysql-5.7.43/lib:/var/lib/mysql
-      - ./data/mysql-5.7.43/log/:/var/log/mysql/
+      - ./data/mysql-8.3.0/lib:/var/lib/mysql
+      - ./data/mysql-8.3.0/log/:/var/log/mysql/
       - ./config/mysql/mysqld.cnf:/etc/mysql/my.cnf
     networks:
       - app
