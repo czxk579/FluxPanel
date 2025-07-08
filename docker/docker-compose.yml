@@ -69,7 +69,7 @@ services:
 
   flux-redis:
     container_name: flux-redis
-    image: redis:7.0.11  # 指定具体版本号
+    image: redis:8.0.2  # 指定具体版本号
     restart: always
     volumes:
       - ./data/redis:/data
