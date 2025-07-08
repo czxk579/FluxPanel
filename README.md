@@ -133,7 +133,7 @@ pip3 install -r requirements.txt
 .env.prod未正式环境使用， 复制.env.prod-templates文件即可
 
 # 运行sql文件
-1.新建数据库flux-data(默认，可修改)
+1.新建数据库flux_data(默认，可修改)
 2.使用命令或数据库连接工具运行sql文件夹下的flux-data.sql
 
 # 运行后端
@@ -208,7 +208,7 @@ docker compose up -d
 # 查看容器是否启动
 docker ps
 
-# 首次执行的时候会自动运行sql文件夹下的flux-data.sql，所以需要等待一会儿才能真正跑起来
+# 首次执行的时候会自动运行sql文件夹下的flux_data.sql，所以需要等待一会儿才能真正跑起来
 
 ```
 

@@ -148,7 +148,7 @@ docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
 
    ```bash
    # MySQL首次启动需要3-5分钟初始化数据库
-   # 会自动执行 flux-backend/sql/flux-data.sql 文件
+   # 会自动执行 flux-backend/sql/flux_data.sql 文件
    # 监控日志直到看到 "ready for connections"
    docker compose logs -f flux-mysql | grep "ready for connections"
    ```
