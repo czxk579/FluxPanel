@@ -46,7 +46,15 @@ services:
       - ./log/server:/logs
     networks:
       - app
-    command: stdbuf -oL python /app/server/app.py --env=dev 2>&1 | tee /logs/server.log
+    command: stdbuf -oL python /app/server/app.py --env=prod 2>&1 | tee /logs/server.log
+    deploy:
+      resources:
+        limits:
+          memory: 20G
+          cpus: '3.5'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
 
   flux-mysql:
     container_name: flux-mysql
@@ -62,14 +70,14 @@ services:
     networks:
       - app
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 3s
       retries: 10
 
   flux-redis:
     container_name: flux-redis
-    image: redis:8.0.2  # 指定具体版本号
+    image: redis:8.0.2 # 指定具体版本号
     restart: always
     volumes:
       - ./data/redis:/data
