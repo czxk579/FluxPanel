@@ -20,47 +20,88 @@ cd FluxPanel
 
 ### 2. 配置后端环境文件
 
-根据README.md的说明，需要创建后端环境配置文件：
+后端配置文件 FluxPanel/flux-backend/.env.prod 文件内容如下：
 
 ```bash
-# 进入后端目录
-cd flux-backend
+# -------- 应用配置 --------
+# 应用运行环境
+APP_ENV = 'prod'
+# 应用名称
+APP_NAME = 'FluxBackend'
+# 应用代理路径
+APP_ROOT_PATH = '/server'
+# 应用主机
+APP_HOST = '0.0.0.0'
+# 应用端口
+APP_PORT = 9099
+# 应用版本
+APP_VERSION= '1.5.1'
+# 应用是否开启热重载
+APP_RELOAD = false
+# 进程数量，根据自己的服务器核心数修改，建议 CPU 核心数 × 2 + 1
+APP_WORKERS = 5
+# 应用是否开启IP归属区域查询
+APP_IP_LOCATION_QUERY = false
+# 应用是否允许账号同时登录
+APP_SAME_TIME_LOGIN = true
 
-# 创建生产环境配置文件 .env.prod
-cat > .env.prod << 'EOF'
-# 应用配置
-APP_ENV=prod
-APP_NAME=FluxServer
-APP_HOST=0.0.0.0
-APP_PORT=9099
-APP_ROOT_PATH=/server
+# -------- Jwt配置 --------
+# Jwt秘钥
+JWT_SECRET_KEY = 'b01c66dc2c58dc6a0aabfe2144256be36226de378bf87f72c0c795dda67f4d55'
+# Jwt算法
+JWT_ALGORITHM = 'HS256'
+# 令牌过期时间（一年）
+JWT_EXPIRE_MINUTES = 525600
+# redis中令牌过期时间（一年）
+JWT_REDIS_EXPIRE_MINUTES = 525600
 
-# 数据库配置 (使用Docker容器名称)
-DB_TYPE=mysql
-DB_HOST=flux-mysql
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=root
-DB_DATABASE=flux_data
 
-# Redis配置 (使用Docker容器名称)
-REDIS_HOST=flux-redis
-REDIS_PORT=6379
-REDIS_USERNAME=
-REDIS_PASSWORD=
-REDIS_DATABASE=0
+# -------- 数据库配置 --------
+# 数据库类型，'mysql'
+DB_TYPE = 'mysql'
+# 数据库主机
+DB_HOST = 'flux-mysql'
+# 数据库端口
+DB_PORT = 3306
+# 数据库用户名
+DB_USERNAME = 'root'
+# 数据库密码
+DB_PASSWORD = 'root'
+# 数据库名称
+DB_DATABASE = 'flux_data'
+# 是否开启sqlalchemy 日志
+DB_ECHO = true
+# 允许溢出连接池大小的最大连接数
+DB_MAX_OVERFLOW = 10
+# 连接池大小，0表示连接数无限制
+DB_POOL_SIZE = 500
+# 连接回收时间（单位：秒）
+DB_POOL_RECYCLE = 3600
+# 连接池中没有线程可用时，最多等待的时间（单位：秒）
+DB_POOL_TIMEOUT = 30
 
-# JWT配置
-JWT_SECRET_KEY=b01c66dc2c58dc6a0aabfe2144256be36226de378bf87f72c0c795dda67f4d55
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=1440
+# -------- Redis配置 --------
+# Redis主机
+REDIS_HOST = 'flux-redis'
+# Redis端口
+REDIS_PORT = 6379
+# Redis用户名
+REDIS_USERNAME = ''
+# Redis密码
+REDIS_PASSWORD = ''
+# Redis数据库
+REDIS_DATABASE = 2
 
-# 上传配置
-UPLOAD_METHOD=local
-EOF
+# OpenAI
+OPENAI_API_KEY = 'xxxx'
+OPENAI_API_URL = 'xxxx'
+OPENAI_API_MODEL = 'xxxx'
 
-# 返回项目根目录
-cd ..
+# 配置启动的python路径
+PYTHON_PATH = 'python'
+
+# 上传方式, local或者oss
+UPLOAD_METHOD = "local"
 ```
 
 ### 3. 构建前端
@@ -79,8 +120,20 @@ npm install -g pnpm
 
 # 创建前端生产环境配置
 cat > .env.production << 'EOF'
-# 生产环境API地址
-VITE_APP_BASE_API=/server
+# 页面标题
+VITE_APP_TITLE = FluxAdmin
+
+# 生产环境配置
+VITE_APP_ENV = 'production'
+
+# FluxAdmin/生产环境
+# VITE_APP_BASE_API = 'https://flux-api.igiggle.cn'
+
+## FluxAdmin/生产环境 Docker
+VITE_APP_BASE_API = '/server'
+
+# 是否在打包时开启压缩，支持 gzip 和 brotli
+VITE_BUILD_COMPRESS = gzip
 EOF
 
 # 安装前端依赖
