@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video-Clip 智能视频剪辑平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .upload-area { border: 2px dashed #cbd5e0; transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #667eea; background-color: #f7fafc; }
+        .upload-area.dragover { border-color: #667eea; background-color: #edf2f7; }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="videoClipApp()">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img class="h-8 w-8" src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=32&h=32&fit=crop&crop=center" alt="Logo">
+                    </div>
+                    <div class="ml-3">
+                        <h1 class="text-xl font-bold text-gray-900">Video-Clip</h1>
+                        <p class="text-xs text-gray-500">智能视频剪辑平台</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-600">
+                        本月已用: <span class="font-semibold">5/20</span>
+                    </div>
+                    <div class="relative">
+                        <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 标签页导航 -->
+        <div class="border-b border-gray-200 mb-8">
+            <nav class="-mb-px flex space-x-8">
+                <button @click="currentTab = 'upload'" 
+                        :class="currentTab === 'upload' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="fas fa-upload mr-2"></i>视频上传
+                </button>
+                <button @click="currentTab = 'management'" 
+                        :class="currentTab === 'management' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="fas fa-tasks mr-2"></i>任务管理
+                </button>
+                <button @click="currentTab = 'config'" 
+                        :class="currentTab === 'config' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="fas fa-cog mr-2"></i>剪辑配置
+                </button>
+                <button @click="currentTab = 'preview'" 
+                        :class="currentTab === 'preview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="fas fa-play mr-2"></i>预览下载
+                </button>
+            </nav>
+        </div>
+
+        <!-- 视频上传页面 -->
+        <div x-show="currentTab === 'upload'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">上传视频</h2>
+                
+                <!-- 上传区域 -->
+                <div class="upload-area rounded-lg p-12 text-center" 
+                     @dragover.prevent="dragover = true" 
+                     @dragleave.prevent="dragover = false"
+                     @drop.prevent="handleDrop($event)">
+                    <div class="mx-auto w-12 h-12 text-gray-400 mb-4">
+                        <i class="fas fa-cloud-upload-alt text-4xl"></i>
+                    </div>
+                    <p class="text-xl text-gray-600 mb-2">拖拽视频文件到此处或</p>
+                    <button class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                        选择文件
+                    </button>
+                    <p class="text-sm text-gray-500 mt-4">支持 MP4、MOV、AVI 格式，最大 2GB</p>
+                </div>
+
+                <!-- 上传队列 -->
+                <div x-show="uploadQueue.length > 0" class="mt-6">
+                    <h3 class="text-md font-medium text-gray-900 mb-3">上传队列</h3>
+                    <div class="space-y-3">
+                        <template x-for="file in uploadQueue" :key="file.id">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-900" x-text="file.name"></span>
+                                    <span class="text-sm text-gray-500" x-text="formatFileSize(file.size)"></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+                                         :style="`width: ${file.progress}%`"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span x-text="file.status"></span>
+                                    <span x-text="`${file.progress}%`"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务管理页面 -->
+        <div x-show="currentTab === 'management'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900">视频处理任务</h2>
+                        <div class="flex space-x-3">
+                            <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                                <option>全部状态</option>
+                                <option>待处理</option>
+                                <option>处理中</option>
+                                <option>已完成</option>
+                                <option>失败</option>
+                            </select>
+                            <button class="bg-indigo-600 text-white px-4 py-1 rounded-md text-sm hover:bg-indigo-700">
+                                批量处理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">视频</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">进度</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">片段数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="task in tasks" :key="task.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img class="h-10 w-16 object-cover rounded" :src="task.thumbnail" alt="缩略图">
+                                            <div class="ml-3">
+                                                <p class="text-sm font-medium text-gray-900" x-text="task.filename"></p>
+                                                <p class="text-sm text-gray-500" x-text="task.duration"></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span :class="getStatusColor(task.status)" 
+                                              class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                                              x-text="task.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full" 
+                                                 :style="`width: ${task.progress}%`"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-500" x-text="`${task.progress}%`"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="task.segments"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.createdAt"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">查看</button>
+                                        <button class="text-red-600 hover:text-red-900">删除</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 剪辑配置页面 -->
+        <div x-show="currentTab === 'config'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">剪辑参数配置</h2>
+                
+                <!-- 自定义Prompt配置 -->
+                <div class="mb-8">
+                    <h3 class="text-md font-medium text-gray-900 mb-3">视频生成Prompt配置</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="flex items-center mb-2">
+                                <input type="checkbox" x-model="useCustomPrompt" class="rounded text-indigo-600">
+                                <span class="ml-2 text-sm font-medium text-gray-700">使用自定义Prompt</span>
+                            </label>
+                            <textarea x-show="useCustomPrompt" 
+                                      placeholder="请输入自定义的视频分析Prompt..."
+                                      class="block w-full h-32 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                      x-model="customPrompt"></textarea>
+                            <div x-show="!useCustomPrompt" class="text-sm text-gray-500 italic p-3 bg-gray-50 rounded-md">
+                                使用默认Prompt：基于钩子、材质介绍、穿搭效果、促成交四个维度进行视频分析剪辑，生成60秒左右的视频片段
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 卖点选择 -->
+                    <div>
+                        <h3 class="text-md font-medium text-gray-900 mb-3">卖点类型选择</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-3 text-sm text-gray-700">🎯 钩子内容 - 吸引注意力的开场</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-3 text-sm text-gray-700">📝 材质介绍 - 产品特性说明</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-3 text-sm text-gray-700">👗 穿搭效果 - 展示效果和搭配</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-3 text-sm text-gray-700">💰 促成交 - 价格优势和优惠</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 视频参数 -->
+                    <div>
+                        <h3 class="text-md font-medium text-gray-900 mb-3">视频参数</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                            <p class="text-sm text-blue-700">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                提示：视频时长范围建议在自定义Prompt中设置，这里的设置作为备用参数
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">时长范围</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <input type="number" placeholder="最短时长" value="30" 
+                                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <span class="text-xs text-gray-500">秒</span>
+                                    </div>
+                                    <div>
+                                        <input type="number" placeholder="最长时长" value="180" 
+                                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <span class="text-xs text-gray-500">秒</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">输出分辨率</label>
+                                <select class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>1080p (1920x1080)</option>
+                                    <option>720p (1280x720)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">视频质量</label>
+                                <select class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>高质量</option>
+                                    <option>中等质量</option>
+                                    <option>低质量</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 水印设置 -->
+                <div class="mt-8">
+                    <h3 class="text-md font-medium text-gray-900 mb-3">水印设置</h3>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-2 text-sm font-medium text-gray-700">启用水印</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">水印内容</label>
+                                <input type="text" value="VideoClip" 
+                                       class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">位置</label>
+                                <select class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>右下角</option>
+                                    <option>左下角</option>
+                                    <option>右上角</option>
+                                    <option>左上角</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">透明度</label>
+                                <input type="range" min="0" max="100" value="70" 
+                                       class="block w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 字幕设置 -->
+                <div class="mt-8">
+                    <h3 class="text-md font-medium text-gray-900 mb-3">字幕设置</h3>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="rounded text-indigo-600">
+                                <span class="ml-2 text-sm font-medium text-gray-700">自动生成字幕</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">字体大小</label>
+                                <input type="number" value="24" 
+                                       class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">字体颜色</label>
+                                <input type="color" value="#FFFFFF" 
+                                       class="block w-full h-10 border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">背景颜色</label>
+                                <input type="color" value="#000000" 
+                                       class="block w-full h-10 border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">位置</label>
+                                <select class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>底部</option>
+                                    <option>顶部</option>
+                                    <option>中间</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div class="mt-8 flex justify-end space-x-3">
+                    <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        重置
+                    </button>
+                    <button class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">
+                        保存配置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预览下载页面 -->
+        <div x-show="currentTab === 'preview'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">处理结果预览</h2>
+                
+                <!-- 视频片段列表 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <template x-for="segment in segments" :key="segment.id">
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img :src="segment.thumbnail" alt="视频缩略图" class="w-full h-40 object-cover">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                    <button class="bg-white text-gray-900 rounded-full p-3 hover:bg-gray-100">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+                                <div class="absolute top-2 left-2">
+                                    <span :class="getTypeColor(segment.type)" 
+                                          class="px-2 py-1 text-xs font-semibold rounded" 
+                                          x-text="segment.typeLabel"></span>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+                                    <span x-text="segment.duration"></span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 mb-2" x-text="segment.title"></h3>
+                                <p class="text-sm text-gray-600 mb-3" x-text="segment.description"></p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-sm text-gray-500">
+                                        <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                        <span x-text="segment.confidence"></span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm">
+                                            <i class="fas fa-download mr-1"></i>下载
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- 批量操作 -->
+                <div class="mt-8 border-t border-gray-200 pt-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-indigo-600">
+                                <span class="ml-2 text-sm text-gray-700">全选</span>
+                            </label>
+                            <span class="text-sm text-gray-500">已选择 3 个片段</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-eye mr-2"></i>批量预览
+                            </button>
+                            <button class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
+                                <i class="fas fa-download mr-2"></i>批量下载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function videoClipApp() {
+            return {
+                currentTab: 'upload',
+                dragover: false,
+                useCustomPrompt: false,
+                customPrompt: '',
+                uploadQueue: [
+                    { id: 1, name: 'demo-video-1.mp4', size: 52428800, progress: 100, status: '上传完成' },
+                    { id: 2, name: 'live-stream-2.mp4', size: 128000000, progress: 45, status: '上传中...' }
+                ],
+                tasks: [
+                    {
+                        id: 1,
+                        filename: 'demo-video-1.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=200&h=100&fit=crop',
+                        duration: '5:24',
+                        status: '已完成',
+                        progress: 100,
+                        segments: 3,
+                        createdAt: '2024-01-15 10:30'
+                    },
+                    {
+                        id: 2,
+                        filename: 'live-stream-2.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=100&fit=crop',
+                        duration: '8:45',
+                        status: '处理中',
+                        progress: 65,
+                        segments: 0,
+                        createdAt: '2024-01-15 11:15'
+                    }
+                ],
+                segments: [
+                    {
+                        id: 1,
+                        title: '产品开场介绍',
+                        description: '吸引人的开场白，快速介绍产品亮点和特色',
+                        type: 'hook',
+                        typeLabel: '钩子内容',
+                        duration: '0:45',
+                        confidence: '85%',
+                        thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop'
+                    },
+                    {
+                        id: 2,
+                        title: '材质工艺展示',
+                        description: '详细展示产品的面料材质和精湛工艺',
+                        type: 'material',
+                        typeLabel: '材质介绍',
+                        duration: '1:20',
+                        confidence: '92%',
+                        thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300&h=200&fit=crop'
+                    },
+                    {
+                        id: 3,
+                        title: '穿搭效果演示',
+                        description: '真人试穿展示不同搭配效果和场合适用性',
+                        type: 'effect',
+                        typeLabel: '穿搭效果',
+                        duration: '2:10',
+                        confidence: '88%',
+                        thumbnail: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&h=200&fit=crop'
+                    }
+                ],
+                
+                handleDrop(event) {
+                    this.dragover = false;
+                    // 处理文件拖拽逻辑
+                },
+                
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+                
+                getStatusColor(status) {
+                    const colors = {
+                        '已完成': 'bg-green-100 text-green-800',
+                        '处理中': 'bg-blue-100 text-blue-800',
+                        '待处理': 'bg-yellow-100 text-yellow-800',
+                        '失败': 'bg-red-100 text-red-800'
+                    };
+                    return colors[status] || 'bg-gray-100 text-gray-800';
+                },
+                
+                getTypeColor(type) {
+                    const colors = {
+                        'hook': 'bg-purple-500 text-white',
+                        'material': 'bg-blue-500 text-white',
+                        'effect': 'bg-green-500 text-white',
+                        'promotion': 'bg-red-500 text-white'
+                    };
+                    return colors[type] || 'bg-gray-500 text-white';
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

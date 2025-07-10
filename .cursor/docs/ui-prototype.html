@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>video-clip 短视频智能切片平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        [x-cloak] { display: none !important; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans" x-data="appData()" x-cloak>
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-indigo-600">video-clip</h1>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <button @click="currentPage = 'home'" 
+                                    :class="currentPage === 'home' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-indigo-600'"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                首页
+                            </button>
+                            <button @click="currentPage = 'upload'" 
+                                    :class="currentPage === 'upload' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-indigo-600'"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                上传视频
+                            </button>
+                            <button @click="currentPage = 'config'" 
+                                    :class="currentPage === 'config' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-indigo-600'"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                剪辑配置
+                            </button>
+                            <button @click="currentPage = 'tasks'" 
+                                    :class="currentPage === 'tasks' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-indigo-600'"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                任务管理
+                            </button>
+                            <button @click="currentPage = 'results'" 
+                                    :class="currentPage === 'results' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:text-indigo-600'"
+                                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                我的作品
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" 
+                                 alt="用户头像" class="w-8 h-8 rounded-full">
+                            <span class="hidden md:block">用户名</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        <div x-show="open" @click.away="open = false" 
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人设置</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">账户管理</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">退出登录</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="min-h-screen">
+        <!-- 首页 -->
+        <div x-show="currentPage === 'home'" class="relative">
+            <!-- Hero Section -->
+            <div class="gradient-bg text-white py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 class="text-5xl font-bold mb-6">智能视频切片，轻松制作爆款短视频</h1>
+                    <p class="text-xl mb-8 text-gray-100">AI智能识别卖点，自动剪辑合并，让每个视频都成为爆款</p>
+                    <div class="flex justify-center space-x-4">
+                        <button @click="currentPage = 'upload'" 
+                                class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            立即开始
+                        </button>
+                        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition-colors">
+                            观看演示
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能特色 -->
+            <div class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">强大功能，简化创作</h2>
+                        <p class="text-gray-600">专为直播带货、产品推广设计的智能视频切片工具</p>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-brain text-2xl text-indigo-600"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">AI智能识别</h3>
+                            <p class="text-gray-600">自动识别钩子内容、材质介绍、穿搭效果、促成交等卖点信息</p>
+                        </div>
+                        <div class="text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-cut text-2xl text-green-600"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">智能剪辑</h3>
+                            <p class="text-gray-600">根据卖点自动剪辑精彩片段，保持内容连贯性和表现力</p>
+                        </div>
+                        <div class="text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-magic text-2xl text-purple-600"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">一键合成</h3>
+                            <p class="text-gray-600">智能合并片段，添加过渡效果，生成符合平台要求的短视频</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使用场景 -->
+            <div class="py-20 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">适用场景</h2>
+                        <p class="text-gray-600">覆盖主流直播带货场景，让每个视频都有爆款潜力</p>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=200&fit=crop" 
+                                 alt="女性服装" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold mb-2">女性服装</h3>
+                                <p class="text-gray-600">识别材质介绍、穿搭效果、显瘦话术等关键卖点</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=200&fit=crop" 
+                                 alt="包包推广" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold mb-2">包包推广</h3>
+                                <p class="text-gray-600">捕捉品牌同款、材质工艺、容量展示等精彩片段</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=200&fit=crop" 
+                                 alt="化妆品" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold mb-2">化妆品</h3>
+                                <p class="text-gray-600">提取成分介绍、效果演示、使用对比等核心内容</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 上传页面 -->
+        <div x-show="currentPage === 'upload'" class="py-8">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">上传视频</h1>
+                    <p class="text-gray-600">支持2-10分钟的视频文件，系统将自动识别卖点并生成短视频</p>
+                </div>
+
+                <!-- 上传区域 -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-indigo-400 transition-colors">
+                        <div class="mb-4">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">拖拽视频文件到这里</h3>
+                        <p class="text-gray-600 mb-4">或者点击选择文件</p>
+                        <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                            选择文件
+                        </button>
+                        <p class="text-sm text-gray-500 mt-4">
+                            支持 MP4、AVI、MOV、MKV 格式，单个文件最大 500MB
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 批量上传列表 -->
+                <div x-show="uploadedFiles.length > 0" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold mb-4">已上传文件</h3>
+                    <template x-for="file in uploadedFiles" :key="file.id">
+                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-video text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium" x-text="file.name"></h4>
+                                    <p class="text-sm text-gray-500">
+                                        大小: <span x-text="file.size"></span> | 
+                                        时长: <span x-text="file.duration"></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-32 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full" :style="`width: ${file.progress}%`"></div>
+                                </div>
+                                <span class="text-sm text-gray-600" x-text="`${file.progress}%`"></span>
+                                <button class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center">
+                        <p class="text-gray-600">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            上传完成后，请前往<strong>剪辑配置</strong>页面设置处理参数
+                        </p>
+                        <button @click="currentPage = 'config'" 
+                                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                            前往配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 剪辑配置页面 -->
+        <div x-show="currentPage === 'config'" class="py-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">剪辑配置</h1>
+                    <p class="text-gray-600">配置视频剪辑参数，设置片头片尾、水印、字幕和AI分析参数</p>
+                </div>
+
+                <!-- 配置选项卡导航 -->
+                <div class="bg-white rounded-lg shadow-lg mb-8">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8 px-6">
+                            <button @click="activeConfigTab = 'prompt'" 
+                                    :class="activeConfigTab === 'prompt' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-robot mr-2"></i>AI分析配置
+                            </button>
+                            <button @click="activeConfigTab = 'video'" 
+                                    :class="activeConfigTab === 'video' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-video mr-2"></i>视频设置
+                            </button>
+                            <button @click="activeConfigTab = 'watermark'" 
+                                    :class="activeConfigTab === 'watermark' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-image mr-2"></i>水印设置
+                            </button>
+                            <button @click="activeConfigTab = 'subtitle'" 
+                                    :class="activeConfigTab === 'subtitle' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                <i class="fas fa-closed-captioning mr-2"></i>字幕设置
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- AI分析配置 -->
+                    <div x-show="activeConfigTab === 'prompt'" class="p-6">
+                        <h3 class="text-lg font-semibold mb-6">视频生成Prompt配置</h3>
+                        
+                        <!-- 自定义Prompt开关 -->
+                        <div class="mb-6">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="useCustomPrompt" class="sr-only">
+                                <div class="relative">
+                                    <div :class="useCustomPrompt ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                         class="block w-14 h-8 rounded-full transition-colors duration-200"></div>
+                                    <div :class="useCustomPrompt ? 'translate-x-6' : 'translate-x-0'" 
+                                         class="absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-200 shadow-lg"></div>
+                                </div>
+                                <div class="ml-3">
+                                    <span class="text-lg font-medium text-gray-900">使用自定义Prompt</span>
+                                    <p class="text-sm text-gray-500">开启后可自定义视频分析剪辑的Prompt指令</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- 自定义Prompt输入区域 -->
+                        <div x-show="useCustomPrompt" x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform scale-95"
+                             x-transition:enter-end="opacity-100 transform scale-100"
+                             class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">自定义Prompt指令</label>
+                            <textarea x-model="customPrompt" 
+                                      rows="8" 
+                                      placeholder="请输入您的自定义Prompt指令，用于指导AI如何分析和剪辑您的视频..."
+                                      class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none">
+                            </textarea>
+                            <p class="mt-2 text-xs text-gray-500">
+                                <i class="fas fa-lightbulb mr-1"></i>
+                                提示：请描述您希望AI如何识别和剪辑视频内容，包括关注的卖点类型、时长要求等
+                            </p>
+                        </div>
+
+                        <!-- 默认Prompt说明 -->
+                        <div x-show="!useCustomPrompt" 
+                             class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-400 mt-0.5 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-blue-800 mb-2">默认Prompt说明</h4>
+                                    <p class="text-sm text-blue-700 leading-relaxed">
+                                        系统将使用预设的智能分析Prompt，自动识别视频中的<strong>钩子内容</strong>、<strong>材质介绍</strong>、<strong>穿搭效果</strong>、<strong>促成交</strong>四个维度的卖点，并生成约60秒的精彩短视频片段。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- 视频设置 -->
+                    <div x-show="activeConfigTab === 'video'" class="p-6">
+                        <h3 class="text-lg font-semibold mb-6">片头片尾设置</h3>
+                        
+                        <!-- 片头设置 -->
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-md font-medium text-gray-900">片头设置</h4>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" x-model="enableIntro" class="sr-only">
+                                    <div class="relative">
+                                        <div :class="enableIntro ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                             class="block w-12 h-6 rounded-full transition-colors"></div>
+                                        <div :class="enableIntro ? 'translate-x-6' : 'translate-x-0'" 
+                                             class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform shadow"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-700">启用片头</span>
+                                </label>
+                            </div>
+                            
+                            <div x-show="enableIntro" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">片头封面素材</label>
+                                    <p class="text-xs text-gray-500 mb-3">
+                                        <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                                        片头封面将显示在生成视频的开头，建议上传高质量的品牌Logo或产品封面图
+                                    </p>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors cursor-pointer"
+                                         @click="uploadIntroFile()">
+                                        <div x-show="!introFile">
+                                            <i class="fas fa-image text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-600">点击上传片头封面图片</p>
+                                            <p class="text-xs text-gray-500 mt-1">支持 JPG、PNG 格式，建议尺寸 1920x1080</p>
+                                        </div>
+                                        <div x-show="introFile" class="space-y-2">
+                                            <div class="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                <img x-show="introFile && introFilePreview" :src="introFilePreview" 
+                                                     alt="片头封面预览" class="w-full h-full object-cover">
+                                                <i x-show="!introFilePreview" class="fas fa-image text-gray-400 text-xl"></i>
+                                            </div>
+                                            <p class="text-sm text-green-600" x-text="introFile?.name || '片头封面已上传'"></p>
+                                            <div class="flex space-x-2 justify-center">
+                                                <button @click.stop="previewIntroFile()" class="text-xs text-blue-500 hover:text-blue-700">
+                                                    <i class="fas fa-eye mr-1"></i>预览
+                                                </button>
+                                                <button @click.stop="removeIntroFile()" class="text-xs text-red-500 hover:text-red-700">
+                                                    <i class="fas fa-times mr-1"></i>删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">片头时长</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="1">1秒</option>
+                                            <option value="2" selected>2秒</option>
+                                            <option value="3">3秒</option>
+                                            <option value="5">5秒</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">过渡效果</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="fade">淡入淡出</option>
+                                            <option value="slide">滑动</option>
+                                            <option value="none">无过渡</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 片尾设置 -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-md font-medium text-gray-900">片尾设置</h4>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" x-model="enableOutro" class="sr-only">
+                                    <div class="relative">
+                                        <div :class="enableOutro ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                             class="block w-12 h-6 rounded-full transition-colors"></div>
+                                        <div :class="enableOutro ? 'translate-x-6' : 'translate-x-0'" 
+                                             class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform shadow"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-700">启用片尾</span>
+                                </label>
+                            </div>
+                            
+                            <div x-show="enableOutro" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">片尾视频素材</label>
+                                    <p class="text-xs text-gray-500 mb-3">
+                                        <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                                        片尾视频将显示在生成视频的结尾，通常用于展示联系方式、关注提醒或品牌宣传
+                                    </p>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors cursor-pointer"
+                                         @click="uploadOutroFile()">
+                                        <div x-show="!outroFile">
+                                            <i class="fas fa-video text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-600">点击上传片尾视频</p>
+                                            <p class="text-xs text-gray-500 mt-1">支持 MP4、MOV 格式，建议时长1-5秒，分辨率1920x1080</p>
+                                        </div>
+                                        <div x-show="outroFile" class="space-y-2">
+                                            <div class="w-20 h-20 mx-auto mb-2 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                <video x-show="outroFile && outroFilePreview" :src="outroFilePreview" 
+                                                       class="w-full h-full object-cover" muted></video>
+                                                <i x-show="!outroFilePreview" class="fas fa-video text-gray-400 text-xl"></i>
+                                            </div>
+                                            <p class="text-sm text-green-600" x-text="outroFile?.name || '片尾视频已上传'"></p>
+                                            <div class="flex space-x-2 justify-center">
+                                                <button @click.stop="previewOutroFile()" class="text-xs text-blue-500 hover:text-blue-700">
+                                                    <i class="fas fa-play mr-1"></i>预览
+                                                </button>
+                                                <button @click.stop="removeOutroFile()" class="text-xs text-red-500 hover:text-red-700">
+                                                    <i class="fas fa-times mr-1"></i>删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">片尾时长</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="1">1秒</option>
+                                            <option value="2">2秒</option>
+                                            <option value="3" selected>3秒</option>
+                                            <option value="5">5秒</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">过渡效果</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="fade">淡入淡出</option>
+                                            <option value="slide">滑动</option>
+                                            <option value="none">无过渡</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 水印设置 -->
+                    <div x-show="activeConfigTab === 'watermark'" class="p-6">
+                        <h3 class="text-lg font-semibold mb-6">水印设置</h3>
+                        
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-900">启用水印</h4>
+                                <p class="text-sm text-gray-500">为视频添加水印保护您的内容</p>
+                            </div>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="enableWatermark" class="sr-only">
+                                <div class="relative">
+                                    <div :class="enableWatermark ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                         class="block w-12 h-6 rounded-full transition-colors"></div>
+                                    <div :class="enableWatermark ? 'translate-x-6' : 'translate-x-0'" 
+                                         class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform shadow"></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div x-show="enableWatermark" class="space-y-6">
+                            <!-- 水印类型选择 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">水印类型</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="watermarkType" value="text" x-model="watermarkType" class="h-4 w-4 text-indigo-600">
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">文字水印</div>
+                                            <div class="text-xs text-gray-500">添加自定义文字水印</div>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="watermarkType" value="image" x-model="watermarkType" class="h-4 w-4 text-indigo-600">
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">图片水印</div>
+                                            <div class="text-xs text-gray-500">上传Logo或图片</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 文字水印设置 -->
+                            <div x-show="watermarkType === 'text'" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">水印文字</label>
+                                    <input type="text" placeholder="请输入水印文字" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">字体大小</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="small">小</option>
+                                            <option value="medium" selected>中</option>
+                                            <option value="large">大</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">字体颜色</label>
+                                        <input type="color" value="#FFFFFF" class="w-full h-10 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">透明度</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="0.3">30%</option>
+                                            <option value="0.5">50%</option>
+                                            <option value="0.7" selected>70%</option>
+                                            <option value="1.0">100%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 图片水印设置 -->
+                            <div x-show="watermarkType === 'image'" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">水印图片</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors cursor-pointer">
+                                        <i class="fas fa-image text-2xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-600">点击上传水印图片</p>
+                                        <p class="text-xs text-gray-500 mt-1">支持 PNG、JPG 格式，建议透明背景</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">水印大小</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="small">小 (5%)</option>
+                                            <option value="medium" selected>中 (10%)</option>
+                                            <option value="large">大 (15%)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">透明度</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="0.3">30%</option>
+                                            <option value="0.5">50%</option>
+                                            <option value="0.7" selected>70%</option>
+                                            <option value="1.0">100%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 水印位置 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">水印位置</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button @click="watermarkPosition = 'top-left'" 
+                                            :class="watermarkPosition === 'top-left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-up mr-1"></i>左上
+                                    </button>
+                                    <button @click="watermarkPosition = 'top-center'" 
+                                            :class="watermarkPosition === 'top-center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-up mr-1"></i>居中
+                                    </button>
+                                    <button @click="watermarkPosition = 'top-right'" 
+                                            :class="watermarkPosition === 'top-right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-up mr-1"></i>右上
+                                    </button>
+                                    <button @click="watermarkPosition = 'center-left'" 
+                                            :class="watermarkPosition === 'center-left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrows-alt-h mr-1"></i>左中
+                                    </button>
+                                    <button @click="watermarkPosition = 'center'" 
+                                            :class="watermarkPosition === 'center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-plus mr-1"></i>中心
+                                    </button>
+                                    <button @click="watermarkPosition = 'center-right'" 
+                                            :class="watermarkPosition === 'center-right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrows-alt-h mr-1"></i>右中
+                                    </button>
+                                    <button @click="watermarkPosition = 'bottom-left'" 
+                                            :class="watermarkPosition === 'bottom-left' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-down mr-1"></i>左下
+                                    </button>
+                                    <button @click="watermarkPosition = 'bottom-center'" 
+                                            :class="watermarkPosition === 'bottom-center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-down mr-1"></i>居中
+                                    </button>
+                                    <button @click="watermarkPosition = 'bottom-right'" 
+                                            :class="watermarkPosition === 'bottom-right' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-arrow-down mr-1"></i>右下
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 字幕设置 -->
+                    <div x-show="activeConfigTab === 'subtitle'" class="p-6">
+                        <h3 class="text-lg font-semibold mb-6">字幕设置</h3>
+                        
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-900">自动生成字幕</h4>
+                                <p class="text-sm text-gray-500">基于语音识别自动生成视频字幕</p>
+                            </div>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="enableSubtitle" class="sr-only">
+                                <div class="relative">
+                                    <div :class="enableSubtitle ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                         class="block w-12 h-6 rounded-full transition-colors"></div>
+                                    <div :class="enableSubtitle ? 'translate-x-6' : 'translate-x-0'" 
+                                         class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform shadow"></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div x-show="enableSubtitle" class="space-y-6">
+                            <!-- 字幕样式 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">字幕样式</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">字体大小</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="16">小 (16px)</option>
+                                            <option value="20">中 (20px)</option>
+                                            <option value="24" selected>大 (24px)</option>
+                                            <option value="28">特大 (28px)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">字体颜色</label>
+                                        <input type="color" value="#FFFFFF" class="w-full h-10 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">描边颜色</label>
+                                        <input type="color" value="#000000" class="w-full h-10 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">描边宽度</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="0">无描边</option>
+                                            <option value="1" selected>细描边</option>
+                                            <option value="2">中描边</option>
+                                            <option value="3">粗描边</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 字幕位置 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">字幕位置</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <button @click="subtitlePosition = 'top'" 
+                                            :class="subtitlePosition === 'top' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        顶部
+                                    </button>
+                                    <button @click="subtitlePosition = 'center'" 
+                                            :class="subtitlePosition === 'center' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        中央
+                                    </button>
+                                    <button @click="subtitlePosition = 'bottom'" 
+                                            :class="subtitlePosition === 'bottom' ? 'bg-indigo-100 border-indigo-500' : 'bg-white border-gray-300'"
+                                            class="p-3 border-2 rounded-lg text-center hover:bg-gray-50 transition-colors">
+                                        底部
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 字幕背景 -->
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">字幕背景</label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" x-model="subtitleBackground" class="sr-only">
+                                        <div class="relative">
+                                            <div :class="subtitleBackground ? 'bg-indigo-600' : 'bg-gray-300'" 
+                                                 class="block w-10 h-5 rounded-full transition-colors"></div>
+                                            <div :class="subtitleBackground ? 'translate-x-5' : 'translate-x-0'" 
+                                                 class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform shadow"></div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div x-show="subtitleBackground" class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">背景颜色</label>
+                                        <input type="color" value="#000000" class="w-full h-10 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">背景透明度</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                            <option value="0.3">30%</option>
+                                            <option value="0.5" selected>50%</option>
+                                            <option value="0.7">70%</option>
+                                            <option value="0.9">90%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            配置完成后，可以开始处理已上传的视频
+                        </div>
+                        <div class="flex space-x-4">
+                            <button class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                                保存为模板
+                            </button>
+                            <button @click="startProcessing()" 
+                                    class="px-8 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                开始处理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 任务管理页面 -->
+        <div x-show="currentPage === 'tasks'" class="py-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">任务管理</h1>
+                    <p class="text-gray-600">查看和管理您的视频处理任务</p>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-tasks text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">总任务</p>
+                                <p class="text-2xl font-semibold text-gray-900">6</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-yellow-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">处理中</p>
+                                <p class="text-2xl font-semibold text-gray-900">1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">已完成</p>
+                                <p class="text-2xl font-semibold text-gray-900">4</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-circle text-red-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">失败</p>
+                                <p class="text-2xl font-semibold text-gray-900">1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-film text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">总片段数</p>
+                                <p class="text-2xl font-semibold text-gray-900">55</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-stopwatch text-teal-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">总时长</p>
+                                <p class="text-2xl font-semibold text-gray-900">41分40秒</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold">任务列表</h3>
+                            <div class="flex space-x-2">
+                                <select class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                    <option>全部状态</option>
+                                    <option>处理中</option>
+                                    <option>已完成</option>
+                                    <option>失败</option>
+                                </select>
+                                <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                    刷新
+                                </button>
+                                <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-play mr-2"></i>批量处理
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 表格形式的任务列表 -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left">
+                                        <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded border-gray-300">
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">视频信息</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">大小</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时长</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">进度</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">片段数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="task in tasks" :key="task.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded border-gray-300" :value="task.id">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <img :src="task.thumbnail" :alt="task.name" class="w-12 h-12 rounded-lg object-cover mr-4">
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900" x-text="task.name"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.size"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.duration"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span :class="{
+                                                'bg-yellow-100 text-yellow-800': task.status === 'processing',
+                                                'bg-green-100 text-green-800': task.status === 'completed',
+                                                'bg-red-100 text-red-800': task.status === 'failed',
+                                                'bg-gray-100 text-gray-800': task.status === 'pending'
+                                            }" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" x-text="task.statusText">
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div x-show="task.status === 'processing'" class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+                                                     :style="`width: ${task.progress}%`"></div>
+                                            </div>
+                                            <div x-show="task.status === 'processing'" class="text-xs text-gray-500 mt-1" 
+                                                 x-text="`${task.progress}%`"></div>
+                                            <span x-show="task.status !== 'processing'" class="text-sm text-gray-500">-</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.segments || '-'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.createdAt"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <button x-show="task.status === 'pending'" 
+                                                        class="text-green-600 hover:text-green-900 transition-colors"
+                                                        title="开始处理">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                                <button x-show="task.status === 'processing'" 
+                                                        class="text-orange-600 hover:text-orange-900 transition-colors"
+                                                        title="停止处理">
+                                                    <i class="fas fa-stop"></i>
+                                                </button>
+                                                <button x-show="task.status === 'completed'" 
+                                                        @click="previewVideo(task)"
+                                                        class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                                        title="预览">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button x-show="task.status === 'completed'" 
+                                                        @click="downloadVideo(task)"
+                                                        class="text-blue-600 hover:text-blue-900 transition-colors"
+                                                        title="下载">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="text-red-600 hover:text-red-900 transition-colors"
+                                                        title="删除">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的作品页面 -->
+        <div x-show="currentPage === 'results'" class="py-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">我的作品</h1>
+                    <p class="text-gray-600">查看和管理您已完成的短视频作品</p>
+                </div>
+
+                <!-- 筛选和搜索 -->
+                <div class="bg-white rounded-lg shadow p-6 mb-8">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex space-x-4">
+                            <select class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <option>全部类型</option>
+                                <option>女性服装</option>
+                                <option>包包推广</option>
+                                <option>化妆品</option>
+                            </select>
+                            <select class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <option>创建时间</option>
+                                <option>最近一周</option>
+                                <option>最近一月</option>
+                                <option>最近三月</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索作品..." 
+                                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <button class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品网格 -->
+                <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <template x-for="video in videos" :key="video.id">
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                            <div class="relative">
+                                <img :src="video.thumbnail" :alt="video.title" class="w-full h-48 object-cover">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                                    <button @click="playVideo(video)" 
+                                            class="opacity-0 hover:opacity-100 transition-opacity bg-white text-indigo-600 rounded-full p-3">
+                                        <i class="fas fa-play text-xl"></i>
+                                    </button>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded" 
+                                     x-text="video.duration"></div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2" x-text="video.title"></h3>
+                                <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                                    <span x-text="video.createdAt"></span>
+                                    <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs" 
+                                          x-text="video.category"></span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button @click="shareVideo(video)" 
+                                            class="flex-1 bg-indigo-600 text-white py-2 px-3 rounded text-sm hover:bg-indigo-700 transition-colors">
+                                        <i class="fas fa-share mr-1"></i>分享
+                                    </button>
+                                    <button @click="downloadVideo(video)" 
+                                            class="bg-gray-100 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-200 transition-colors">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button @click="editVideo(video)" 
+                                            class="bg-gray-100 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-200 transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- 分页 -->
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex space-x-2">
+                        <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            上一页
+                        </button>
+                        <button class="px-3 py-2 bg-indigo-600 text-white rounded-lg">1</button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">2</button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">3</button>
+                        <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            下一页
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 视频预览模态框 -->
+    <div x-show="showVideoModal" @click.away="closeVideoModal()" 
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold" x-text="currentVideo?.title || '视频预览'"></h3>
+                    <button @click="closeVideoModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="aspect-video bg-black rounded-lg flex items-center justify-center">
+                    <div class="text-white text-center">
+                        <i class="fas fa-play text-4xl mb-4"></i>
+                        <p>视频播放器</p>
+                        <p class="text-sm text-gray-300 mt-2">这里将显示实际的视频播放器</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        下载视频
+                    </button>
+                    <button class="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        分享链接
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function appData() {
+            return {
+                currentPage: 'home',
+                showVideoModal: false,
+                currentVideo: null,
+                
+                // Prompt配置相关
+                useCustomPrompt: false,
+                customPrompt: '',
+                
+                // 视频设置
+                enableIntro: true,
+                enableOutro: true,
+                introFile: null,
+                outroFile: null,
+                introFilePreview: null,
+                outroFilePreview: null,
+                
+                // 水印设置
+                enableWatermark: true,
+                watermarkType: 'text',
+                watermarkPosition: 'bottom-right',
+                
+                // 字幕设置
+                enableSubtitle: true,
+                subtitlePosition: 'bottom',
+                subtitleBackground: false,
+                
+                // 配置页面选项卡
+                activeConfigTab: 'prompt',
+                uploadedFiles: [
+                    {
+                        id: 1,
+                        name: '女装直播精选_20241215.mp4',
+                        size: '245 MB',
+                        duration: '8分32秒',
+                        progress: 100
+                    },
+                    {
+                        id: 2,
+                        name: '包包推广素材.mp4',
+                        size: '189 MB',
+                        duration: '6分18秒',
+                        progress: 65
+                    }
+                ],
+                tasks: [
+                    {
+                        id: 1,
+                        name: '女装直播精选_20241215.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=80&h=80&fit=crop',
+                        status: 'completed',
+                        statusText: '已完成',
+                        progress: 100,
+                        duration: '8分32秒',
+                        size: '245 MB',
+                        segments: '18',
+                        createdAt: '2024-12-15 14:30'
+                    },
+                    {
+                        id: 2,
+                        name: '包包推广素材.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=80&h=80&fit=crop',
+                        status: 'processing',
+                        statusText: '处理中',
+                        progress: 65,
+                        duration: '6分18秒',
+                        size: '189 MB',
+                        segments: '-',
+                        createdAt: '2024-12-15 15:45'
+                    },
+                    {
+                        id: 3,
+                        name: '化妆品演示_新品发布.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=80&h=80&fit=crop',
+                        status: 'failed',
+                        statusText: '处理失败',
+                        progress: 0,
+                        duration: '4分52秒',
+                        size: '156 MB',
+                        segments: '-',
+                        createdAt: '2024-12-15 16:20'
+                    },
+                    {
+                        id: 4,
+                        name: '秋季穿搭推荐.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=80&h=80&fit=crop',
+                        status: 'completed',
+                        statusText: '已完成',
+                        progress: 100,
+                        duration: '7分15秒',
+                        size: '210 MB',
+                        segments: '15',
+                        createdAt: '2024-12-15 13:20'
+                    },
+                    {
+                        id: 5,
+                        name: '美妆教程直播.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=80&h=80&fit=crop',
+                        status: 'completed',
+                        statusText: '已完成',
+                        progress: 100,
+                        duration: '9分45秒',
+                        size: '315 MB',
+                        segments: '22',
+                        createdAt: '2024-12-15 12:10'
+                    },
+                    {
+                        id: 6,
+                        name: '手表展示推广.mp4',
+                        thumbnail: 'https://images.unsplash.com/photo-1594534475808-b18fc33b045e?w=80&h=80&fit=crop',
+                        status: 'pending',
+                        statusText: '等待处理',
+                        progress: 0,
+                        duration: '5分30秒',
+                        size: '180 MB',
+                        segments: '-',
+                        createdAt: '2024-12-15 17:30'
+                    }
+                ],
+                videos: [
+                    {
+                        id: 1,
+                        title: '显瘦连衣裙推荐',
+                        thumbnail: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=200&fit=crop',
+                        duration: '58秒',
+                        category: '女性服装',
+                        createdAt: '2024-12-15'
+                    },
+                    {
+                        id: 2,
+                        title: '奢侈品包包同款',
+                        thumbnail: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=200&fit=crop',
+                        duration: '1分15秒',
+                        category: '包包推广',
+                        createdAt: '2024-12-14'
+                    },
+                    {
+                        id: 3,
+                        title: '美白精华使用效果',
+                        thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=200&fit=crop',
+                        duration: '42秒',
+                        category: '化妆品',
+                        createdAt: '2024-12-13'
+                    },
+                    {
+                        id: 4,
+                        title: '冬季外套穿搭',
+                        thumbnail: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=200&fit=crop',
+                        duration: '1分05秒',
+                        category: '女性服装',
+                        createdAt: '2024-12-12'
+                    }
+                ],
+
+                startProcessing() {
+                    // 验证是否有上传的文件
+                    if (this.uploadedFiles.length === 0) {
+                        alert('请先上传视频文件');
+                        return;
+                    }
+
+                    // 检查自定义Prompt设置
+                    if (this.useCustomPrompt && !this.customPrompt.trim()) {
+                        alert('请输入自定义Prompt内容，或关闭自定义Prompt选项');
+                        return;
+                    }
+
+                    // 构建处理参数
+                    const processingConfig = {
+                        useCustomPrompt: this.useCustomPrompt,
+                        prompt: this.useCustomPrompt ? this.customPrompt : this.getDefaultPrompt(),
+                        files: this.uploadedFiles,
+                        // 片头片尾设置
+                        intro: {
+                            enabled: this.enableIntro,
+                            file: this.introFile
+                        },
+                        outro: {
+                            enabled: this.enableOutro,
+                            file: this.outroFile
+                        },
+                        // 水印设置
+                        watermark: {
+                            enabled: this.enableWatermark,
+                            type: this.watermarkType,
+                            position: this.watermarkPosition
+                        },
+                        // 字幕设置
+                        subtitle: {
+                            enabled: this.enableSubtitle,
+                            position: this.subtitlePosition,
+                            background: this.subtitleBackground
+                        }
+                    };
+
+                    console.log('开始处理视频，配置信息：', processingConfig);
+                    
+                    // 模拟开始处理
+                    alert('视频处理任务已提交，请在任务管理页面查看进度');
+                    this.currentPage = 'tasks';
+                },
+
+                // 获取默认Prompt
+                getDefaultPrompt() {
+                    return `你是一个视频srt字幕分析剪辑器，输入视频的srt字幕，你需要依次按照钩子(电商术语)、材质介绍、穿搭效果、促成交这四个维度来筛选视频内容，并将其中的精彩且尽可能连续的片段并裁剪出来，将片段中在时间上连续的多个句子及它们的时间戳合并为一条，注意确保文字与时间戳的正确匹配。最终生成的视频长度在60s 左右。输出需严格按照如下格式：1. [开始时间-结束时间] 文本，注意其中的连接符是"-"`;
+                },
+
+                // 片头封面上传
+                uploadIntroFile() {
+                    // 创建文件输入元素
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/jpeg,image/png';
+                    input.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // 验证文件类型
+                            if (!file.type.startsWith('image/')) {
+                                alert('请选择图片文件（JPG或PNG格式）');
+                                return;
+                            }
+                            // 验证文件大小（限制5MB）
+                            if (file.size > 5 * 1024 * 1024) {
+                                alert('图片文件大小不能超过5MB');
+                                return;
+                            }
+                            this.introFile = file;
+                            // 生成预览URL
+                            this.introFilePreview = URL.createObjectURL(file);
+                            console.log('片头封面已上传:', file.name);
+                        }
+                    });
+                    input.click();
+                },
+
+                // 删除片头封面
+                removeIntroFile() {
+                    if (this.introFilePreview) {
+                        URL.revokeObjectURL(this.introFilePreview);
+                        this.introFilePreview = null;
+                    }
+                    this.introFile = null;
+                    console.log('片头封面已删除');
+                },
+
+                // 片尾视频上传
+                uploadOutroFile() {
+                    // 创建文件输入元素
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'video/mp4,video/quicktime';
+                    input.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // 验证文件类型
+                            if (!file.type.startsWith('video/')) {
+                                alert('请选择视频文件（MP4或MOV格式）');
+                                return;
+                            }
+                            // 验证文件大小（限制50MB）
+                            if (file.size > 50 * 1024 * 1024) {
+                                alert('视频文件大小不能超过50MB');
+                                return;
+                            }
+                            this.outroFile = file;
+                            // 生成预览URL
+                            this.outroFilePreview = URL.createObjectURL(file);
+                            console.log('片尾视频已上传:', file.name);
+                        }
+                    });
+                    input.click();
+                },
+
+                // 删除片尾视频
+                removeOutroFile() {
+                    if (this.outroFilePreview) {
+                        URL.revokeObjectURL(this.outroFilePreview);
+                        this.outroFilePreview = null;
+                    }
+                    this.outroFile = null;
+                    console.log('片尾视频已删除');
+                },
+
+                // 预览片头封面
+                previewIntroFile() {
+                    if (this.introFilePreview) {
+                        // 在新窗口中打开预览
+                        window.open(this.introFilePreview, '_blank');
+                    }
+                },
+
+                // 预览片尾视频
+                previewOutroFile() {
+                    if (this.outroFilePreview) {
+                        // 在新窗口中打开预览
+                        window.open(this.outroFilePreview, '_blank');
+                    }
+                },
+
+
+
+                previewVideo(task) {
+                    this.currentVideo = task;
+                    this.showVideoModal = true;
+                },
+
+                playVideo(video) {
+                    this.currentVideo = video;
+                    this.showVideoModal = true;
+                },
+
+                closeVideoModal() {
+                    this.showVideoModal = false;
+                    this.currentVideo = null;
+                },
+
+                downloadVideo(item) {
+                    alert(`开始下载: ${item.name || item.title}`);
+                },
+
+                shareVideo(video) {
+                    alert(`分享视频: ${video.title}`);
+                },
+
+                editVideo(video) {
+                    alert(`编辑视频: ${video.title}`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
