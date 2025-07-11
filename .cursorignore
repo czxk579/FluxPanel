@@ -1,0 +1,3 @@
+flux-backend/.venv/*
+flux-frontend/dist/*
+flux-frontend/node_modules/*
