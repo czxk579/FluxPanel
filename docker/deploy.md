@@ -27,7 +27,7 @@ cd VideoClip
 # 应用运行环境
 APP_ENV = 'prod'
 # 应用名称
-    APP_NAME = 'VideoClipBackend'
+APP_NAME = 'VideoClipBackend'
 # 应用代理路径
 APP_ROOT_PATH = '/server'
 # 应用主机
@@ -202,9 +202,13 @@ docker exec -it videoclip-mysql mysql -uroot -proot -e "SHOW DATABASES;"
    ```bash
    # MySQL首次启动需要3-5分钟初始化数据库
    # 会自动执行 clip-backend/sql/video_clip_data.sql 文件
-# 监控日志直到看到 "ready for connections"
-docker compose logs -f videoclip-mysql | grep "ready for connections"
    ```
+
+# 监控日志直到看到 "ready for connections"
+
+docker compose logs -f videoclip-mysql | grep "ready for connections"
+
+```
 3. **端口冲突检查**
 
    ```bash
@@ -215,7 +219,8 @@ docker compose logs -f videoclip-mysql | grep "ready for connections"
    sudo systemctl stop apache2   # 如果有Apache
    sudo systemctl stop nginx     # 如果有系统nginx
    sudo systemctl stop mysql     # 如果有系统MySQL
-   ```
+```
+
 4. **环境变量配置**
 
    ```bash

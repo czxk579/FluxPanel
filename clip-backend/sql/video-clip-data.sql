@@ -1,4 +1,4 @@
--- Active: 1751959165738@@140.83.86.13@3306@clip_data
+-- Active: 1751959165738@@140.83.86.13@3306@video_clip_data
 /*
 Navicat Premium Dump SQL
 
@@ -6,7 +6,7 @@ Source Server         : localhost
 Source Server Type    : MySQL
 Source Server Version : 90200 (9.2.0)
 Source Host           : localhost:3306
-Source Schema         : clip_data
+Source Schema         : video_clip_data
 
 Target Server Type    : MySQL
 Target Server Version : 90200 (9.2.0)
@@ -14,6 +14,12 @@ File Encoding         : 65001
 
 Date: 11/04/2025 14:42:18
 */
+
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS `video_clip_data` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- 使用数据库
+USE `video_clip_data`;
 
 SET NAMES utf8mb4;
 
