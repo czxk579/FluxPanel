@@ -13,7 +13,7 @@ class AppSettings(BaseSettings):
     """
 
     app_env: str = 'dev'
-    app_name: str = 'FluxServer'
+    app_name: str = 'VideoClipServer'
     app_root_path: str = '/dev-api'
     app_static_path: str = os.path.join(os.getcwd(), "static/templates")
     app_host: str = '0.0.0.0'
@@ -78,7 +78,7 @@ class UploadSettings:
     上传配置
     """
     UPLOAD_PREFIX: str = '/profile'
-    UPLOAD_PATH: str = 'flux_admin/upload_path'
+    UPLOAD_PATH: str = 'video_clip_admin/upload_path'
     UPLOAD_MACHINE: str = 'A'
     DEFAULT_ALLOWED_EXTENSION: list = [
         # 图片
@@ -109,7 +109,7 @@ class UploadSettings:
         # pdf
         'pdf',
     ]
-    DOWNLOAD_PATH: str = 'flux_admin/download_path'
+    DOWNLOAD_PATH: str = 'video_clip_admin/download_path'
 
     def __init__(self):
         if not os.path.exists(self.UPLOAD_PATH):

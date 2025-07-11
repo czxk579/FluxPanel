@@ -6,15 +6,15 @@ networks:
 
 services:
 
-  flux-nginx:
-    container_name: flux-nginx
+  videoclip-nginx:
+    container_name: videoclip-nginx
     image: nginx:latest
     restart: always
     depends_on:
-      flux-fastapi:
+      videoclip-fastapi:
         condition: service_started
     volumes:
-      - ../flux-frontend/dist:/public/admin
+      - ../clip-frontend/dist:/public/admin
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./config/nginx/conf.d:/etc/nginx/conf.d
       - ./log/nginx:/logs
@@ -25,11 +25,11 @@ services:
       - "6379:6379"
       - "3306:3306"
 
-  flux-fastapi:
+  videoclip-fastapi:
     depends_on:
-      - flux-mysql
-      - flux-redis
-    container_name: flux-server
+      - videoclip-mysql
+      - videoclip-redis
+    container_name: videoclip-server
     build:
       context: ./
       dockerfile: ./build/python/Dockerfile
@@ -42,7 +42,7 @@ services:
     tty: true
     working_dir: /app/server
     volumes:
-      - ../flux-backend:/app/server
+      - ../clip-backend:/app/server
       - ./log/server:/logs
     networks:
       - app
@@ -56,14 +56,14 @@ services:
           memory: 8G
           cpus: '2.0'
 
-  flux-mysql:
-    container_name: flux-mysql
+  videoclip-mysql:
+    container_name: videoclip-mysql
     image: mysql:8.3.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ../flux-backend/sql:/docker-entrypoint-initdb.d
+      - ../clip-backend/sql:/docker-entrypoint-initdb.d
       - ./data/mysql-8.3.0/lib:/var/lib/mysql
       - ./data/mysql-8.3.0/log/:/var/log/mysql/
       - ./config/mysql/mysqld.cnf:/etc/mysql/my.cnf
@@ -75,8 +75,8 @@ services:
       timeout: 3s
       retries: 10
 
-  flux-redis:
-    container_name: flux-redis
+  videoclip-redis:
+    container_name: videoclip-redis
     image: redis:8.0.2 # 指定具体版本号
     restart: always
     volumes:

@@ -1,7 +1,7 @@
 {
-  "name": "flux-admin",
+  "name": "video-clip-admin",
   "version": "1.5.1",
-  "description": "Flux Admin",
+  "description": "Video Clip Admin",
   "author": "insistence",
   "license": "MIT",
   "type": "module",

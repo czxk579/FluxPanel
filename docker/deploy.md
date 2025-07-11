@@ -1,6 +1,6 @@
-# FluxPanel Docker-Compose 部署指南
+# VideoClip Docker-Compose 部署指南
 
-本文档提供在Ubuntu系统中通过docker-compose部署FluxPanel项目的完整操作流程。
+本文档提供在Ubuntu系统中通过docker-compose部署VideoClip项目的完整操作流程。
 
 ## 前置要求
 
@@ -14,20 +14,20 @@
 
 ```bash
 # 克隆项目到您的Ubuntu服务器
-git clone https://github.com/czxk579/FluxPanel.git
-cd FluxPanel
+git clone https://github.com/czxk579/VideoClip.git
+cd VideoClip
 ```
 
 ### 2. 配置后端环境文件
 
-后端配置文件 FluxPanel/flux-backend/.env.prod 文件内容如下：
+后端配置文件 VideoClip/clip-backend/.env.prod 文件内容如下：
 
 ```bash
 # -------- 应用配置 --------
 # 应用运行环境
 APP_ENV = 'prod'
 # 应用名称
-APP_NAME = 'FluxBackend'
+    APP_NAME = 'VideoClipBackend'
 # 应用代理路径
 APP_ROOT_PATH = '/server'
 # 应用主机
@@ -60,7 +60,7 @@ JWT_REDIS_EXPIRE_MINUTES = 525600
 # 数据库类型，'mysql'
 DB_TYPE = 'mysql'
 # 数据库主机
-DB_HOST = 'flux-mysql'
+DB_HOST = 'videoclip-mysql'
 # 数据库端口
 DB_PORT = 3306
 # 数据库用户名
@@ -68,7 +68,7 @@ DB_USERNAME = 'root'
 # 数据库密码
 DB_PASSWORD = 'root'
 # 数据库名称
-DB_DATABASE = 'flux_data'
+DB_DATABASE = 'video_clip_data'
 # 是否开启sqlalchemy 日志
 DB_ECHO = true
 # 允许溢出连接池大小的最大连接数
@@ -82,7 +82,7 @@ DB_POOL_TIMEOUT = 30
 
 # -------- Redis配置 --------
 # Redis主机
-REDIS_HOST = 'flux-redis'
+REDIS_HOST = 'videoclip-redis'
 # Redis端口
 REDIS_PORT = 6379
 # Redis用户名
@@ -108,7 +108,7 @@ UPLOAD_METHOD = "local"
 
 ```bash
 # 进入前端目录
-cd flux-frontend
+cd clip-frontend
 
 # 安装Node.js和pnpm（如果未安装）
 # Ubuntu上安装Node.js 18.x
@@ -121,15 +121,15 @@ npm install -g pnpm
 # 创建前端生产环境配置
 cat > .env.production << 'EOF'
 # 页面标题
-VITE_APP_TITLE = FluxAdmin
+VITE_APP_TITLE = VideoClip Admin
 
 # 生产环境配置
 VITE_APP_ENV = 'production'
 
-# FluxAdmin/生产环境
-# VITE_APP_BASE_API = 'https://flux-api.igiggle.cn'
+# VideoClip Admin/生产环境
+# VITE_APP_BASE_API = 'https://videoclip-api.igiggle.cn'
 
-## FluxAdmin/生产环境 Docker
+## VideoClip Admin/生产环境 Docker
 VITE_APP_BASE_API = '/server'
 
 # 是否在打包时开启压缩，支持 gzip 和 brotli
@@ -173,16 +173,16 @@ docker ps
 ```bash
 # 等待所有服务启动（特别是MySQL初始化）
 # 查看MySQL日志，等待看到 "ready for connections"
-docker compose logs -f flux-mysql
+docker compose logs -f videoclip-mysql
 
 # 另开终端查看FastAPI日志
-docker compose logs -f flux-fastapi
+docker compose logs -f videoclip-fastapi
 
 # 检查所有容器状态
 docker compose ps
 
 # 测试数据库连接
-docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
+docker exec -it videoclip-mysql mysql -uroot -proot -e "SHOW DATABASES;"
 ```
 
 ## 🔥 关键注意事项
@@ -193,7 +193,7 @@ docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
 
    ```bash
    # 必须先构建前端，再启动docker
-   # 因为nginx容器会挂载 ../flux-frontend/dist 目录
+   # 因为nginx容器会挂载 ../clip-frontend/dist 目录
    pnpm run build:prod  # 先执行
    docker compose up -d  # 后执行
    ```
@@ -201,9 +201,9 @@ docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
 
    ```bash
    # MySQL首次启动需要3-5分钟初始化数据库
-   # 会自动执行 flux-backend/sql/flux_data.sql 文件
-   # 监控日志直到看到 "ready for connections"
-   docker compose logs -f flux-mysql | grep "ready for connections"
+   # 会自动执行 clip-backend/sql/video_clip_data.sql 文件
+# 监控日志直到看到 "ready for connections"
+docker compose logs -f videoclip-mysql | grep "ready for connections"
    ```
 3. **端口冲突检查**
 
@@ -220,7 +220,7 @@ docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
 
    ```bash
    # 后端使用Docker容器名称作为主机名
-   DB_HOST=flux-mysql     # ✅ 正确
+   DB_HOST=videoclip-mysql     # ✅ 正确
    DB_HOST=localhost      # ❌ 错误
    ```
 
@@ -233,25 +233,25 @@ docker exec -it flux-mysql mysql -uroot -proot -e "SHOW DATABASES;"
    docker compose logs [服务名]
 
    # 重启单个服务
-   docker compose restart flux-fastapi
+   docker compose restart videoclip-fastapi
    ```
 2. **前端页面无法访问**
 
    ```bash
    # 检查前端构建是否成功
-   ls -la flux-frontend/dist/index.html
+   ls -la clip-frontend/dist/index.html
 
    # 检查nginx配置
-   docker exec -it flux-nginx nginx -t
+   docker exec -it videoclip-nginx nginx -t
    ```
 3. **数据库连接问题**
 
    ```bash
    # 手动测试数据库连接
-   docker exec -it flux-mysql mysql -uroot -proot
+   docker exec -it videoclip-mysql mysql -uroot -proot
 
    # 检查环境文件
-   cat flux-backend/.env.prod
+   cat clip-backend/.env.prod
    ```
 
 ### 🎯 成功验证
@@ -296,10 +296,10 @@ docker compose logs --tail=100
 
 ### 服务组件
 
-- **flux-nginx**: Nginx反向代理，处理前端静态文件和API转发
-- **flux-fastapi**: FastAPI后端服务
-- **flux-mysql**: MySQL 8.3.0数据库
-- **flux-redis**: Redis 8.0.2缓存服务
+- **videoclip-nginx**: Nginx反向代理，处理前端静态文件和API转发
+- **videoclip-fastapi**: FastAPI后端服务
+- **videoclip-mysql**: MySQL 8.3.0数据库
+- **videoclip-redis**: Redis 8.0.2缓存服务
 
 ### 网络配置
 
@@ -315,4 +315,4 @@ docker compose logs --tail=100
 - Redis数据：`./data/redis`
 - 日志文件：`./log/`目录
 
-按照以上流程操作，您就可以在Ubuntu服务器上成功部署FluxPanel项目了！
+按照以上流程操作，您就可以在Ubuntu服务器上成功部署VideoClip项目了！

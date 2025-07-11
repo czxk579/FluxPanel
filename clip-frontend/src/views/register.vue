@@ -1,15 +1,15 @@
 <template>
-    <div class="login">
+    <div class="register">
         <el-form
-            ref="loginRef"
-            :model="loginForm"
-            :rules="loginRules"
-            class="login-form"
+            ref="registerRef"
+            :model="registerForm"
+            :rules="registerRules"
+            class="register-form"
         >
-            <h3 class="title">FluxAdmin</h3>
+            <h3 class="title">VideoClip Admin</h3>
             <el-form-item prop="username">
                 <el-input
-                    v-model="loginForm.username"
+                    v-model="registerForm.username"
                     type="text"
                     size="large"
                     auto-complete="off"
@@ -24,12 +24,28 @@
             </el-form-item>
             <el-form-item prop="password">
                 <el-input
-                    v-model="loginForm.password"
+                    v-model="registerForm.password"
                     type="password"
                     size="large"
                     auto-complete="off"
                     placeholder="密码"
-                    @keyup.enter="handleLogin"
+                    @keyup.enter="handleRegister"
+                >
+                    <template #prefix
+                        ><svg-icon
+                            icon-class="password"
+                            class="el-input__icon input-icon"
+                    /></template>
+                </el-input>
+            </el-form-item>
+            <el-form-item prop="confirmPassword">
+                <el-input
+                    v-model="registerForm.confirmPassword"
+                    type="password"
+                    size="large"
+                    auto-complete="off"
+                    placeholder="确认密码"
+                    @keyup.enter="handleRegister"
                 >
                     <template #prefix
                         ><svg-icon
@@ -40,12 +56,12 @@
             </el-form-item>
             <el-form-item prop="code" v-if="captchaEnabled">
                 <el-input
-                    v-model="loginForm.code"
                     size="large"
+                    v-model="registerForm.code"
                     auto-complete="off"
                     placeholder="验证码"
                     style="width: 63%"
-                    @keyup.enter="handleLogin"
+                    @keyup.enter="handleRegister"
                 >
                     <template #prefix
                         ><svg-icon
@@ -53,129 +69,122 @@
                             class="el-input__icon input-icon"
                     /></template>
                 </el-input>
-                <div class="login-code">
+                <div class="register-code">
                     <img
                         :src="codeUrl"
                         @click="getCode"
-                        class="login-code-img"
+                        class="register-code-img"
                     />
                 </div>
             </el-form-item>
-            <el-checkbox
-                v-model="loginForm.rememberMe"
-                style="margin: 0px 0px 25px 0px"
-                >记住密码</el-checkbox
-            >
             <el-form-item style="width: 100%">
                 <el-button
                     :loading="loading"
                     size="large"
                     type="primary"
                     style="width: 100%"
-                    @click.prevent="handleLogin"
+                    @click.prevent="handleRegister"
                 >
-                    <span v-if="!loading">登 录</span>
-                    <span v-else>登 录 中...</span>
+                    <span v-if="!loading">注 册</span>
+                    <span v-else>注 册 中...</span>
                 </el-button>
-                <div style="float: right" v-if="register">
-                    <router-link class="link-type" :to="'/register'"
-                        >立即注册</router-link
+                <div style="float: right">
+                    <router-link class="link-type" :to="'/login'"
+                        >使用已有账户登录</router-link
                     >
                 </div>
             </el-form-item>
         </el-form>
         <!--  底部  -->
-        <div class="el-login-footer">
+        <div class="el-register-footer">
             <span>Copyright © 2024 insistence.tech All Rights Reserved.</span>
         </div>
     </div>
 </template>
 
 <script setup>
-import { getCodeImg } from '@/api/login'
-import Cookies from 'js-cookie'
-import { encrypt, decrypt } from '@/utils/jsencrypt'
-import useUserStore from '@/store/modules/user'
+import { ElMessageBox } from 'element-plus'
+import { getCodeImg, register } from '@/api/login'
 
-const userStore = useUserStore()
-const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 
-const loginForm = ref({
+const registerForm = ref({
     username: '',
     password: '',
-    rememberMe: false,
+    confirmPassword: '',
     code: '',
     uuid: ''
 })
 
-const loginRules = {
-    username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
-    password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
+const equalToPassword = (rule, value, callback) => {
+    if (registerForm.value.password !== value) {
+        callback(new Error('两次输入的密码不一致'))
+    } else {
+        callback()
+    }
+}
+
+const registerRules = {
+    username: [
+        { required: true, trigger: 'blur', message: '请输入您的账号' },
+        {
+            min: 2,
+            max: 20,
+            message: '用户账号长度必须介于 2 和 20 之间',
+            trigger: 'blur'
+        }
+    ],
+    password: [
+        { required: true, trigger: 'blur', message: '请输入您的密码' },
+        {
+            min: 5,
+            max: 20,
+            message: '用户密码长度必须介于 5 和 20 之间',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^[^<>"'|\\]+$/,
+            message: '不能包含非法字符：< > " \' \\ |',
+            trigger: 'blur'
+        }
+    ],
+    confirmPassword: [
+        { required: true, trigger: 'blur', message: '请再次输入您的密码' },
+        { required: true, validator: equalToPassword, trigger: 'blur' }
+    ],
     code: [{ required: true, trigger: 'change', message: '请输入验证码' }]
 }
 
 const codeUrl = ref('')
 const loading = ref(false)
-// 验证码开关
 const captchaEnabled = ref(true)
-// 注册开关
-const register = ref(false)
-const redirect = ref(undefined)
 
-watch(
-    route,
-    (newRoute) => {
-        redirect.value = newRoute.query && newRoute.query.redirect
-    },
-    { immediate: true }
-)
-
-function handleLogin() {
-    proxy.$refs.loginRef.validate((valid) => {
+function handleRegister() {
+    proxy.$refs.registerRef.validate((valid) => {
         if (valid) {
             loading.value = true
-            // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
-            if (loginForm.value.rememberMe) {
-                Cookies.set('username', loginForm.value.username, {
-                    expires: 30
-                })
-                Cookies.set('password', encrypt(loginForm.value.password), {
-                    expires: 30
-                })
-                Cookies.set('rememberMe', loginForm.value.rememberMe, {
-                    expires: 30
-                })
-            } else {
-                // 否则移除
-                Cookies.remove('username')
-                Cookies.remove('password')
-                Cookies.remove('rememberMe')
-            }
-            // 调用action的登录方法
-            userStore
-                .login(loginForm.value)
-                .then(() => {
-                    const query = route.query
-                    const otherQueryParams = Object.keys(query).reduce(
-                        (acc, cur) => {
-                            if (cur !== 'redirect') {
-                                acc[cur] = query[cur]
-                            }
-                            return acc
-                        },
-                        {}
+            register(registerForm.value)
+                .then((res) => {
+                    const username = registerForm.value.username
+                    ElMessageBox.alert(
+                        "<font color='red'>恭喜你，您的账号 " +
+                            username +
+                            ' 注册成功！</font>',
+                        '系统提示',
+                        {
+                            dangerouslyUseHTMLString: true,
+                            type: 'success'
+                        }
                     )
-                    router.push({
-                        path: redirect.value || '/',
-                        query: otherQueryParams
-                    })
+                        .then(() => {
+                            router.push('/login')
+                        })
+                        .catch(() => {})
                 })
                 .catch(() => {
                     loading.value = false
-                    // 重新获取验证码
-                    if (captchaEnabled.value) {
+                    if (captchaEnabled) {
                         getCode()
                     }
                 })
@@ -187,35 +196,18 @@ function getCode() {
     getCodeImg().then((res) => {
         captchaEnabled.value =
             res.captchaEnabled === undefined ? true : res.captchaEnabled
-        register.value =
-            res.registerEnabled === undefined ? false : res.registerEnabled
         if (captchaEnabled.value) {
             codeUrl.value = 'data:image/gif;base64,' + res.img
-            loginForm.value.uuid = res.uuid
+            registerForm.value.uuid = res.uuid
         }
     })
 }
 
-function getCookie() {
-    const username = Cookies.get('username')
-    const password = Cookies.get('password')
-    const rememberMe = Cookies.get('rememberMe')
-    loginForm.value = {
-        username: username === undefined ? loginForm.value.username : username,
-        password:
-            password === undefined
-                ? loginForm.value.password
-                : decrypt(password),
-        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
-    }
-}
-
 getCode()
-getCookie()
 </script>
 
 <style lang='scss' scoped>
-.login {
+.register {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -229,7 +221,7 @@ getCookie()
     color: #707070;
 }
 
-.login-form {
+.register-form {
     border-radius: 6px;
     background: #ffffff;
     width: 400px;
@@ -246,12 +238,12 @@ getCookie()
         margin-left: 0px;
     }
 }
-.login-tip {
+.register-tip {
     font-size: 13px;
     text-align: center;
     color: #bfbfbf;
 }
-.login-code {
+.register-code {
     width: 33%;
     height: 40px;
     float: right;
@@ -260,7 +252,7 @@ getCookie()
         vertical-align: middle;
     }
 }
-.el-login-footer {
+.el-register-footer {
     height: 40px;
     line-height: 40px;
     position: fixed;
@@ -272,7 +264,7 @@ getCookie()
     font-size: 12px;
     letter-spacing: 1px;
 }
-.login-code-img {
+.register-code-img {
     height: 40px;
     padding-left: 12px;
 }

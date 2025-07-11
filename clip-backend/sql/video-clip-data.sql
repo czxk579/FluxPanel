@@ -1,4 +1,4 @@
--- Active: 1751959165738@@140.83.86.13@3306@flux_data
+-- Active: 1751959165738@@140.83.86.13@3306@clip_data
 /*
 Navicat Premium Dump SQL
 
@@ -6,7 +6,7 @@ Source Server         : localhost
 Source Server Type    : MySQL
 Source Server Version : 90200 (9.2.0)
 Source Host           : localhost:3306
-Source Schema         : flux_data
+Source Schema         : clip_data
 
 Target Server Type    : MySQL
 Target Server Version : 90200 (9.2.0)

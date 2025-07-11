@@ -2,10 +2,10 @@
 	<img alt="logo" src="https://github.com/user-attachments/assets/9ce3fa2b-7751-4d20-b1e0-601eeb60291d">
 
 </p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">Flux Panel</h1>
+<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">Video Clip</h1>
 <h4 align="center">基于FastAPI+Vue3，实现前后端分离的快速开发框架,支持自动生成代码</h4>
 <p align="center">
-    <a href="https://github.com/Richard0403/FluxPanel"><img src="https://img.shields.io/github/stars/Richard0403/FluxPanel?style=social"></a>
+    <a href="https://github.com/Richard0403/VideoClip"><img src="https://img.shields.io/github/stars/Richard0403/VideoClip?style=social"></a>
 	  <img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
     <img src="https://img.shields.io/badge/python-≥3.11-blue">
     <img src="https://img.shields.io/badge/MySQL-≥5.7-blue">
@@ -13,7 +13,7 @@
 
 ## 平台简介
 
-FluxPanel是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
+VideoClip是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
 
 * 前端采用Vue3、Element Plus，基于`<u>`[RuoYi-Vue3](https://github.com/yangzongzhuan/RuoYi-Vue3)`</u>`前端项目修改。
 * 后端采用FastAPI、sqlalchemy、MySQL、Redis、OAuth2 & Jwt。
@@ -24,7 +24,7 @@ FluxPanel是一套全部开源的快速开发平台，毫无保留给个人及�
 
 ## 在线体验地址
 
-[FluxPanel](https://fluxpanel.igiggle.cn)
+[VideoClip](https://videoclip.igiggle.cn)
 
 用户名: admin
 
@@ -32,26 +32,26 @@ FluxPanel是一套全部开源的快速开发平台，毫无保留给个人及�
 
 ## 视频简介
 
-【FluxPanel第一期】 https://www.bilibili.com/video/BV1cjfHYUEPn
+【VideoClip第一期】 https://www.bilibili.com/video/BV1cjfHYUEPn
 
-【FluxPanel第二期】 https://www.bilibili.com/video/BV1ftKNeDE1S
+【VideoClip第二期】 https://www.bilibili.com/video/BV1ftKNeDE1S
 
-【FluxPanel第三期】 https://www.bilibili.com/video/BV1mFQkYeEmu
+【VideoClip第三期】 https://www.bilibili.com/video/BV1mFQkYeEmu
 
-【FluxPanel第四期】 https://www.bilibili.com/video/BV1o3o2Y3ERn
+【VideoClip第四期】 https://www.bilibili.com/video/BV1o3o2Y3ERn
 
-【FluxPanel第五期】 https://www.bilibili.com/video/BV1ayoVYzETe
+【VideoClip第五期】 https://www.bilibili.com/video/BV1ayoVYzETe
 
 ## 项目地址
 
 <table>
     <tr>
         <td>Gitee</td>
-        <td>https://gitee.com/richard403_admin/flux-panel</td>
+        <td>https://gitee.com/richard403_admin/video-clip</td>
     </tr>
   <tr>
         <td>Github</td>
-        <td>https://github.com/Richard0403/FluxPanel</td>
+        <td>https://github.com/Richard0403/VideoClip</td>
     </tr>
 </table>
 
@@ -94,10 +94,10 @@ FluxPanel是一套全部开源的快速开发平台，毫无保留给个人及�
 
 ```bash
 # 克隆项目
-git clone https://github.com/Richard0403/FluxPanel.git
+git clone https://github.com/Richard0403/VideoClip.git
 
 # 进入项目根目录
-cd FluxPanel
+cd VideoClip
 ```
 
 ##### 前端
@@ -106,7 +106,7 @@ cd FluxPanel
 
 ```bash
 # 进入前端目录
-cd flux-frontend
+cd clip-frontend
 
 # 安装依赖
 npm install 或 yarn --registry=https://registry.npmmirror.com
@@ -124,20 +124,20 @@ npm run dev 或 yarn dev
 
 ```bash
 # 进入后端目录
-cd flux-backend
+cd clip-backend
 # 安装依赖环境, 建议使用aconda， python版本推荐3.12
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 
 # 配置环境
 在.env.dev（开发环境）文件中配置开发环境的数据库和redis，
 .env.prod未正式环境使用， 复制.env.prod-templates文件即可
 
 # 运行sql文件
-1.新建数据库flux_data(默认，可修改)
-2.使用命令或数据库连接工具运行sql文件夹下的flux-data.sql
+1.新建数据库video_clip_data(默认，可修改)
+2.使用命令或数据库连接工具运行sql文件夹下的video-clip-data.sql
 
 # 运行后端
-python3 app.py --env=dev
+python app.py --env=dev
 
 ```
 
@@ -188,17 +188,17 @@ granian --interface asgi --workers 17 --runtime-threads 3  server:app --host 0.0
 
 ```bash
 # 克隆项目
-git clone https://github.com/Richard0403/FluxPanel.git
+git clone https://github.com/Richard0403/VideoClip.git
 
 # 进入项目根目录
-cd FluxPanel
+cd VideoClip
 ```
 
 ##### 运行容器
 
 ```bash
 # 配置环境
-复制flux-backend/.env.prod-docker-templates文件，命名为.env.dev，放到flux-backend中
+复制clip-backend/.env.prod-docker-templates文件，命名为.env.dev，放到clip-backend中
 
 cd docker 
 
@@ -208,7 +208,7 @@ docker compose up -d
 # 查看容器是否启动
 docker ps
 
-# 首次执行的时候会自动运行sql文件夹下的flux_data.sql，所以需要等待一会儿才能真正跑起来
+# 首次执行的时候会自动运行sql文件夹下的video_clip_data.sql，所以需要等待一会儿才能真正跑起来
 
 ```
 
@@ -218,7 +218,7 @@ docker ps
 
 ```bash
 # 进入前端目录
-cd flux-frontend
+cd clip-frontend
 
 # 环境配置
 在 .env.development 中，设置 VITE_APP_BASE_API = http://127.0.0.1/server
@@ -240,7 +240,7 @@ pnpm dev
 # 环境配置
 在 .env.production 中，设置 VITE_APP_PROXY_API = /server
 
-cd flux-frontend
+cd clip-frontend
 pnpm run build:prod
 
 # 运行结束就配置好了
@@ -249,7 +249,7 @@ pnpm run build:prod
 
 ## 交流与赞助
 
-如果有对本项目及FastAPI感兴趣的朋友，欢迎加入微信群学习交流。如果你觉得这个项目帮助到了你，你可以请作者喝杯咖啡表示鼓励☕。扫描下面微信二维码添加微信备注Flux即可进群。
+如果有对本项目及FastAPI感兴趣的朋友，欢迎加入微信群学习交流。如果你觉得这个项目帮助到了你，你可以请作者喝杯咖啡表示鼓励☕。扫描下面微信二维码添加微信备注VideoClip即可进群。
 
 <table>
     <tr>
